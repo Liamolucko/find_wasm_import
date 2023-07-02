@@ -5,7 +5,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use anyhow::{bail, Context};
+use anyhow::bail;
 use clap::Parser;
 use wasmparser::Encoding;
 
@@ -58,16 +58,7 @@ fn rlib_contains_import(path: &Path, module: &str, name: &str) -> anyhow::Result
             // If we couldn't parse the wasm, it's probably just because it isn't a wasm file; not
             // only do we not filter this to only `.o` files, but it's possible to have non-wasm
             // dependencies in a wasm project (e.g. build scripts, proc macros).
-            Err(e) => {
-                let filename =
-                    std::str::from_utf8(entry.header().identifier()).with_context(|| {
-                        format!(
-                            "{} contains file whose filename was invalid utf-8",
-                            path.display()
-                        )
-                    })?;
-                eprintln!("couldn't parse {filename}: {e:?}")
-            }
+            Err(_) => {}
             Ok(true) => return Ok(true),
             Ok(false) => {}
         }
